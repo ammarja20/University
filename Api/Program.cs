@@ -4,17 +4,8 @@ using Autofac.Extensions.DependencyInjection;
 using AutoWrapper;
 using Data.Context;
 using Microsoft.EntityFrameworkCore;
-using Serilog;
-
-Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Debug()
-    .WriteTo.Console()  // log to console
-    .WriteTo.File("Logs/log-.txt", rollingInterval: RollingInterval.Day) // log to file
-    .CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
-
-builder.Host.UseSerilog(); // Use Serilog for logging hopefully that's what you want lol
 
 // replace default DI with Autofac
 builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
@@ -26,12 +17,6 @@ builder.Host.ConfigureContainer<ContainerBuilder>(containerBuilder =>
 
 // Add controllers + Swagger
 builder.Services.AddControllers();
-
-builder.Services.AddControllers(options =>
-{
-    options.Filters.Add<Api.Filters.ApiExceptionFilter>();
-});
-
 builder.Services.AddEndpointsApiExplorer(); // Swagger needs this
 builder.Services.AddSwaggerGen();           // Swagger generator
 
