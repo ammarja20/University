@@ -1,6 +1,7 @@
 ﻿using Core.DTOs;
 using Core.Exceptions;
 using Core.Forms;
+using Core.Validators;
 using Data.Entities;
 using Data.Repositories;
 using Microsoft.Extensions.Logging;
@@ -53,21 +54,21 @@ namespace Core.Services
 
         public async Task<StudentDto> CreateAsync(CreateStudentForm form)
         {
+            FormValidator.Validate(form);
             _logger.LogInformation("Creating new student {Email}", form.Email);
 
-            if (string.IsNullOrWhiteSpace(form.Name))
+            var errors = new List<string>();
+
+            var exists = (await _studentRepository.GetAllAsync())
+                         .Any(s => s.Email == form.Email);
+            if (exists)
             {
-                _logger.LogWarning("Student creation failed: Name is required.");
-                throw new BusinessException("Name is required.");
+                _logger.LogWarning("Duplicate email {Email} detected", form.Email);
+                errors.Add("Email already exists.");
             }
 
-            var existing = (await _studentRepository.GetAllAsync())
-                           .FirstOrDefault(s => s.Email == form.Email);
-            if (existing != null)
-            {
-                _logger.LogError("Duplicate email {Email} detected", form.Email);
-                throw new BusinessException("Email already exists.");
-            }
+            if (errors.Any())
+                throw new BusinessException(errors);
 
             var student = new Student { Name = form.Name, Email = form.Email };
             await _studentRepository.AddAsync(student);
@@ -79,6 +80,7 @@ namespace Core.Services
 
         public async Task UpdateAsync(int id, UpdateStudentForm form)
         {
+            FormValidator.Validate(form);
             _logger.LogInformation("Updating student with ID {Id}", id);
 
             var student = await _studentRepository.GetByIdAsync(id);
@@ -88,6 +90,19 @@ namespace Core.Services
                 throw new NotFoundException($"Student with ID {id} not found.");
             }
 
+            var errors = new List<string>();
+            
+            var exists = (await _studentRepository.GetAllAsync())
+                         .Any(s => s.Email == form.Email && s.Id != id);
+            if (exists)
+                errors.Add("Email already exists.");
+
+            if (errors.Any())
+            {
+                _logger.LogWarning("Validation failed for student update {Id}: {Errors}", id, string.Join(", ", errors));
+                throw new BusinessException(errors);
+            }
+
             student.Name = form.Name;
             student.Email = form.Email;
 
@@ -95,6 +110,7 @@ namespace Core.Services
 
             _logger.LogInformation("Student with ID {Id} updated successfully", id);
         }
+
 
         public async Task DeleteAsync(int id)  //  غيرنا البوليان
         {

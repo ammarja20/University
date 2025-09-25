@@ -9,20 +9,24 @@ namespace Api.Filters
         public void OnException(ExceptionContext context)
         {
             int statusCode = 500;
-            string message = "An unexpected error occurred.";
+            object response = new { error = "An unexpected error occurred." };
 
             if (context.Exception is NotFoundException nf)
             {
                 statusCode = 404;
-                message = nf.Message;
+                response = new { error = nf.Message };
             }
             else if (context.Exception is BusinessException be)
             {
                 statusCode = 400;
-                message = be.Message;
+                response = new
+                {
+                    message = "Validation failed",
+                    errors = be.Errors   // هون صار يضيف كل الأخطاء
+                };
             }
 
-            context.Result = new ObjectResult(new { error = message })
+            context.Result = new ObjectResult(response)
             {
                 StatusCode = statusCode
             };
