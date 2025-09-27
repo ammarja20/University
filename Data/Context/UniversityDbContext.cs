@@ -9,5 +9,6 @@ namespace Data.Context
             : base(options) { }
 
         public DbSet<Student> Students { get; set; } = null!;
+        public DbSet<Course> Courses { get; set; } = null!;
     }
 }

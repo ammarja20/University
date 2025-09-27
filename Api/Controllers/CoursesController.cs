@@ -8,12 +8,12 @@ namespace Api.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [TypeFilter(typeof(ApiExceptionFilter))]
-    public class StudentsController : ControllerBase
+    public class CoursesController : ControllerBase
     {
-        private readonly IStudentService _service;
-        private readonly ILogger<StudentsController> _logger;
+        private readonly ICourseService _service;
+        private readonly ILogger<CoursesController> _logger;
 
-        public StudentsController(IStudentService service, ILogger<StudentsController> logger)
+        public CoursesController(ICourseService service, ILogger<CoursesController> logger)
         {
             _service = service;
             _logger = logger;
@@ -23,9 +23,8 @@ namespace Api.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAll()
         {
-            _logger.LogInformation("GET /api/students called");
-            var students = await _service.GetAllAsync();
-            return Ok(students);
+            _logger.LogInformation("GET /api/courses");
+            return Ok(await _service.GetAllAsync());
         }
 
         [HttpGet("{id}")]
@@ -33,30 +32,29 @@ namespace Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetById(int id)
         {
-            _logger.LogInformation("GET /api/students/{Id} called", id);
-            var student = await _service.GetByIdAsync(id);
-            return Ok(student);
+            _logger.LogInformation("GET /api/courses/{Id}", id);
+            return Ok(await _service.GetByIdAsync(id)); // NotFound handled via filter
         }
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Create([FromBody] CreateStudentForm form)
+        public async Task<IActionResult> Create([FromBody] CreateCourseForm form)
         {
-            _logger.LogInformation("POST /api/students called with {Email}", form.Email);
-            var created = await _service.CreateAsync(form);
-            return Ok(created);
+            _logger.LogInformation("POST /api/courses");
+            var dto = await _service.CreateAsync(form);
+            return Ok(dto);
         }
 
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Update(int id, [FromBody] UpdateStudentForm form)
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateCourseForm form)
         {
-            _logger.LogInformation("PUT /api/students/{Id} called", id);
+            _logger.LogInformation("PUT /api/courses/{Id}", id);
             await _service.UpdateAsync(id, form);
-            return Ok(new { Message = $"Student {id} updated successfully" });
+            return Ok(new { Message = $"Course {id} updated successfully" });
         }
 
         [HttpDelete("{id}")]
@@ -64,9 +62,9 @@ namespace Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Delete(int id)
         {
-            _logger.LogInformation("DELETE /api/students/{Id} called", id);
+            _logger.LogInformation("DELETE /api/courses/{Id}", id);
             await _service.DeleteAsync(id);
-            return Ok(new { Message = $"Student {id} deleted successfully" });
+            return Ok(new { Message = $"Course {id} deleted successfully" });
         }
     }
 }

@@ -9,6 +9,6 @@ namespace Core.Services
         Task<StudentDto> GetByIdAsync(int id);
         Task<StudentDto> CreateAsync(CreateStudentForm form);
         Task UpdateAsync(int id, UpdateStudentForm form);   
-        Task DeleteAsync(int id);                           // no bool anymore
+        Task DeleteAsync(int id);        // no bool anymore
     }
 }

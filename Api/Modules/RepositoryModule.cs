@@ -8,6 +8,7 @@ namespace Api.Modules
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterType<StudentRepository>().As<IStudentRepository>().InstancePerLifetimeScope();
+            builder.RegisterType<CourseRepository>().As<ICourseRepository>().InstancePerLifetimeScope();
         }
     }
 }
