@@ -1,4 +1,5 @@
-﻿using Core.Forms;
+﻿using Api.Filters;
+using Core.Forms;
 using Core.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,6 +7,7 @@ namespace Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [TypeFilter(typeof(ApiExceptionFilter))]
     public class CoursesController : ControllerBase
     {
         private readonly ICourseService _service;

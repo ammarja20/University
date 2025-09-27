@@ -1,6 +1,7 @@
 ﻿using Core.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Api.Wrappers;
 
 namespace Api.Filters
 {
@@ -9,21 +10,17 @@ namespace Api.Filters
         public void OnException(ExceptionContext context)
         {
             int statusCode = 500;
-            object response = new { error = "An unexpected error occurred." };
+            ApiResponse response = ApiResponse.Response(500, "An unexpected error occurred.");
 
             if (context.Exception is NotFoundException nf)
             {
                 statusCode = 404;
-                response = new { error = nf.Message };
+                response = ApiResponse.Response(404, nf.Message);
             }
             else if (context.Exception is BusinessException be)
             {
                 statusCode = 400;
-                response = new
-                {
-                    message = "Validation failed",
-                    errors = be.Errors   // هون صار يضيف كل الأخطاء
-                };
+                response = ApiResponse.Response(400, "Validation failed", be.Errors);
             }
 
             context.Result = new ObjectResult(response)

@@ -1,12 +1,13 @@
-﻿using Core.Forms;
+﻿using Api.Filters;
+using Core.Forms;
 using Core.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [TypeFilter(typeof(ApiExceptionFilter))]
     public class StudentsController : ControllerBase
     {
         private readonly IStudentService _service;
@@ -34,7 +35,7 @@ namespace Api.Controllers
         {
             _logger.LogInformation("GET /api/students/{Id} called", id);
             var student = await _service.GetByIdAsync(id);
-            return Ok(student); // if not found > service throws NotFoundException > handled by ApiExceptionFilter
+            return Ok(student);
         }
 
         [HttpPost]
