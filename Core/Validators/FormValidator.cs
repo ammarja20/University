@@ -5,17 +5,21 @@ namespace Core.Validators
 {
     public static class FormValidator
     {
-        public static void Validate<T>(T form)
+        public static void Validate<T>(T form) where T : class
         {
             if (form == null)
-                throw new BusinessException("Form cannot be null.");
+                throw new BusinessException(new List<string> { "Form cannot be null." });
 
             var context = new ValidationContext(form);
             var results = new List<ValidationResult>();
 
-            if (!Validator.TryValidateObject(form, context, results, true))
+            if (!Validator.TryValidateObject(form, context, results, validateAllProperties: true))
             {
-                var errors = string.Join("; ", results.Select(r => r.ErrorMessage));
+                var errors = results
+                    .Select(r => string.IsNullOrWhiteSpace(r.ErrorMessage) ? "Validation error." : r.ErrorMessage!)
+                    .ToList();
+
+                // throw list, not a single message
                 throw new BusinessException(errors);
             }
         }
